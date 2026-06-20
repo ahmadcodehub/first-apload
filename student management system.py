@@ -1,5 +1,5 @@
 # =========================
-# STUDENT CLASS (DATA ONLY)
+# STUDENT CLASS
 # =========================
 
 class Student:
@@ -20,74 +20,115 @@ class Student:
 
 
 # =========================
-# MANAGEMENT SYSTEM (LOGIC)
+# MANAGEMENT SYSTEM
 # =========================
 
 class StudentManagementSystem:
     def __init__(self):
-        # list to store all students
         self.students = []
+        self.load_from_file()   # 🔥 load data when program starts
 
-    # ADD STUDENT
-    def add_student(self, student):
+    # ---------------- LOAD FROM FILE ----------------
+    def load_from_file(self):
+        try:
+            with open("students.txt", "r") as file:
+                lines = file.readlines()[1:]  # skip header
+
+                for line in lines:
+                    data = line.strip().split(",")
+                    student = Student(data[0], data[1], data[2], data[3], data[4])
+                    self.students.append(student)
+
+        except FileNotFoundError:
+            pass
+
+    # ---------------- SAVE TO FILE ----------------
+    def save_to_file(self):
+        with open("students.txt", "w") as file:
+            file.write("ID,Name,Age,Grade,Semester\n")
+            for s in self.students:
+                file.write(f"{s.id},{s.name},{s.age},{s.grade},{s.semester}\n")
+
+    # ---------------- ADD ----------------
+    def add_student(self):
+        id = input("Enter ID: ")
+        name = input("Enter Name: ")
+        age = input("Enter Age: ")
+        grade = input("Enter Grade: ")
+        semester = input("Enter Semester: ")
+
+        student = Student(id, name, age, grade, semester)
         self.students.append(student)
+
+        self.save_to_file()
         print("Student added successfully!")
 
-    # VIEW ALL STUDENTS
+    # ---------------- VIEW ----------------
     def view_students(self):
-        if len(self.students) == 0:
+        if not self.students:
             print("No students found.")
-        else:
-            for student in self.students:
-                student.display_info()
+            return
 
-    # SEARCH STUDENT BY NAME
-    def search_student(self, name):
-        for student in self.students:
-            if student.name == name:
+        for s in self.students:
+            s.display_info()
+
+    # ---------------- SEARCH ----------------
+    def search_student(self):
+        name = input("Enter name to search: ")
+
+        for s in self.students:
+            if s.name == name:
                 print("Student Found:")
-                student.display_info()
-                return student
-        print("Student not found.")
-        return None
+                s.display_info()
+                return
 
-    # DELETE STUDENT BY NAME
-    def delete_student(self, name):
-        for student in self.students:
-            if student.name == name:
-                self.students.remove(student)
+        print("Student not found.")
+
+    # ---------------- DELETE ----------------
+    def delete_student(self):
+        name = input("Enter name to delete: ")
+
+        for s in self.students:
+            if s.name == name:
+                self.students.remove(s)
+                self.save_to_file()
                 print("Student deleted successfully!")
                 return
+
         print("Student not found.")
 
 
 # =========================
-# MAIN PROGRAM (RUN CODE)
+# MENU SYSTEM
 # =========================
 
-# create system object
 sms = StudentManagementSystem()
 
-# create students
-s1 = Student(1, "ahmd khan ", 20, "A", 4)
-s2 = Student(2, "hareem batool", 22, "B", 6)
+while True:
+    print("\n===== STUDENT MANAGEMENT SYSTEM =====")
+    print("1. Add Student")
+    print("2. View Students")
+    print("3. Search Student")
+    print("4. Delete Student")
+    print("5. Exit")
 
-# add students to system
-sms.add_student(s1)
-sms.add_student(s2)
+    choice = input("Enter choice: ")
 
-# view all students
-print("\nALL STUDENTS:")
-sms.view_students()
+    if choice == "1":
+        sms.add_student()
 
-# search student
-print("\nSEARCH RESULT:")
-sms.search_student("ahmd khan ")
+    elif choice == "2":
+        sms.view_students()
 
-# delete student
-print("\nDELETE OPERATION:")
-sms.delete_student("hareem batool =")
+    elif choice == "3":
+        sms.search_student()
 
-# view again after delete
-print("\nAFTER DELETION:")
-sms.view_students()
+    elif choice == "4":
+        sms.delete_student()
+
+    elif choice == "5":
+        print("Exiting program...")
+        break
+
+    else:
+        print("Invalid choice!")
